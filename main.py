@@ -8,16 +8,6 @@ class Pizza:
         self.mini = 0
         self.maxc = 0
 
-    def isValidSlice(self, slice):
-        if(slice.h == 0 or slice.w == 0):
-            return False
-        if(slice.h * slice.w > self.maxc):
-            return False
-        #if() check if all tomatoes potatoes
-
-        return True
-
-
 class Slice:
     def __init__(self, X, Y, H, W):
         self.x = X
@@ -39,9 +29,6 @@ def slice_printer(slices):
         outputfile.write(" ".join ([str (slice.y), str (slice.x), str (slice.y +slice.h), str (slice.x + slice.w), '\n']))
     outputfile.close()
 
-pizza = pizza_parser('medium.in')
-slices = []
-
 def check_valid(slice, min_required):
     m_count = 0
     t_count = 0
@@ -56,22 +43,22 @@ def check_valid(slice, min_required):
                 return True
     return False
 
-def get_valid_slices(rows, cols):
+def get_valid_slices(rows, cols, slices, pizza):
     for i in range(pizza.rows - rows):
         for j in range(pizza.cols - cols):
             if check_valid(pizza.lines[i:i+rows][j:j+cols], pizza.mini):
                 slices.append(Slice(i, j, rows, cols))
 
-for rows in range(1, pizza.rows):
-    for cols in range(1, pizza.cols):
-        cells = rows * cols
-        if cells <= pizza.maxc:
-            get_valid_slices(rows, cols)
+def main():
+    pizza = pizza_parser('medium.in')
+    slices = []
+    for rows in range(1, pizza.rows):
+        for cols in range(1, pizza.cols):
+            cells = rows * cols
+            if cells <= pizza.maxc:
+                get_valid_slices(rows, cols, slices, pizza)
 
-#slices.append(Slice(0, 0, 2, 1))
-#slices.append(Slice(3, 2, 1, 2))
-slice_printer(slices)
+    slice_printer(slices)
 
-#outputfile = open('small.out', 'w')
-#outputfile.writelines(pizza)
-#outputfile.close()
+
+main()

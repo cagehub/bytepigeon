@@ -9,7 +9,7 @@ class Pizza:
 def pizza_parser(filename):
     pizza = Pizza()
     with open(filename) as f:
-        pizza.rows, pizza.cols, pizza.mini, pizza.maxc = f.readline().split()
+        pizza.rows, pizza.cols, pizza.mini, pizza.maxc = map(int, f.readline().split())
         pizza.lines = [l for l in f]
     return pizza
 

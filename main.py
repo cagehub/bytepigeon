@@ -1,14 +1,20 @@
-def pizza_parser(inputfile):
-    with inputfile as f:
-        first_line = f.readline()
+class Pizza:
+    def __init__(self):
+        self.lines = []
+        self.rows = 0
+        self.cols = 0
+        self.mini = 0
+        self.maxc = 0
 
-    return first_line
+def pizza_parser(filename):
+    pizza = Pizza()
+    with open(filename) as f:
+        pizza.rows, pizza.cols, pizza.mini, pizza.maxc = f.readline().split()
+        pizza.lines = [l for l in f]
+    return pizza
 
-inputfile = open('small.in', 'r')
-outputfile = open('small.out', 'w')
+pizza = pizza_parser('small.in')
 
-pizza = pizza_parser(inputfile)
-
-outputfile.writelines(pizza)
-inputfile.close()
-outputfile.close()
+#outputfile = open('small.out', 'w')
+#outputfile.writelines(pizza)
+#outputfile.close()

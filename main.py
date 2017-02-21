@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class Pizza:
     def __init__(self):
@@ -18,6 +19,9 @@ class Slice:
     def area(self):
         return self.h * self.w
 
+    def conflicts_with(self, other):
+        return True
+
 def pizza_parser(filename):
     pizza = Pizza()
     with open(filename) as f:
@@ -30,7 +34,7 @@ def slice_printer(slices):
     outputfile = open('result.out', 'w')
     outputfile.write(str(len(slices)) + '\n')
     for slice in slices:
-        outputfile.write(" ".join ([str (slice.y), str (slice.x), str (slice.y +slice.h), str (slice.x + slice.w), '\n']))
+        outputfile.write(" ".join ([str (slice.x), str (slice.y), str (slice.x + slice.h - 1), str (slice.y + slice.w - 1), '\n']))
     outputfile.close()
 
 def selected_area (slices):
@@ -56,14 +60,38 @@ def get_valid_slices(rows, cols, slices, pizza):
             if check_valid(pizza.lines[i:i+rows][j:j+cols], pizza.mini):
                 slices.append(Slice(i, j, rows, cols))
 
+def remove_conflicts(all_slices, selected_slice):
+    new_slices = []
+    for s in all_slices:
+        if not selected_slice.conflicts_with (s):
+            new_slices.append(s)
+    return new_slices
+
+def select_slices_random(all_slices):
+    selected_slices = []
+
+    while all_slices:
+        selected_pos = random.choice(range(0, len (all_slices)))
+        selected_slice = all_slices[selected_pos]
+        selected_slices.append(selected_slice)
+        all_slices.pop(selected_pos)
+        all_slices = remove_conflicts (all_slices, selected_slice)
+
+    print "Random pick selected " + str(len(selected_slices)) + " slices with area " + \
+          str(selected_area(selected_slices))
+    return selected_slices
+
 def main():
-    pizza = pizza_parser('medium.in')
+    pizza = pizza_parser('small.in')
     slices = []
     for rows in range(1, pizza.rows):
         for cols in range(1, pizza.cols):
             cells = rows * cols
             if cells <= pizza.maxc:
                 get_valid_slices(rows, cols, slices, pizza)
+
+    # random_slices = select_slices_random (slices)
+
     slice_printer(slices)
 
 main()

@@ -1,3 +1,5 @@
+import numpy as np
+
 class Pizza:
     def __init__(self):
         self.lines = []
@@ -17,7 +19,7 @@ def pizza_parser(filename):
     pizza = Pizza()
     with open(filename) as f:
         pizza.rows, pizza.cols, pizza.mini, pizza.maxc = map(int, f.readline().split())
-        pizza.lines = [l for l in f]
+        pizza.lines = np.array([list(l.strip()) for l in f])
     return pizza
 
 pizza = pizza_parser('small.in')

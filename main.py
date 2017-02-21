@@ -1,12 +1,13 @@
-def pizza_parser(text):
-    pizza = [1,1]
-    return text
+def pizza_parser(inputfile):
+    with inputfile as f:
+        first_line = f.readline()
+
+    return first_line
 
 inputfile = open('small.in', 'r')
 outputfile = open('small.out', 'w')
-text = inputfile.readlines()
 
-pizza = pizza_parser(text)
+pizza = pizza_parser(inputfile)
 
 outputfile.writelines(pizza)
 inputfile.close()

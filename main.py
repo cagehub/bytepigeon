@@ -25,6 +25,12 @@ class Slice:
         self.h = 0
         self.w = 0
 
+    def __init__(self, X, Y, H, W):
+        self.x = X
+        self.y = Y
+        self.h = H
+        self.w = W
+
 def pizza_parser(filename):
     pizza = Pizza()
     with open(filename) as f:
@@ -32,7 +38,12 @@ def pizza_parser(filename):
         pizza.lines = np.array([list(l.strip()) for l in f])
     return pizza
 
-pizza = pizza_parser('small.in')
+def slice_printer(slices):
+    outputfile = open('result.out', 'w')
+    outputfile.write(str(len(slices)) + '\n')
+    for slice in slices:
+        outputfile.write(" ".join ([str (slice.y), str (slice.x), str (slice.y +slice.h), str (slice.x + slice.w), '\n']))
+    outputfile.close()
 
 def check_valid(slice, min_required):
     m_count = 0
@@ -48,12 +59,18 @@ def check_valid(slice, min_required):
                 return True
     return False
 
+pizza = pizza_parser('small.in')
+
 a = pizza.maxc / 2
 for i in range(pizza.rows - a):
     for j in range(pizza.cols - a):
         is_valid = check_valid(pizza.lines[i:i+a][j:j+a], pizza.mini)
         print "{},{} {}".format(i, j, is_valid)
 
+slices = []
+#slices.append(Slice(0, 0, 2, 1))
+#slices.append(Slice(3, 2, 1, 2))
+slice_printer(slices)
 
 #outputfile = open('small.out', 'w')
 #outputfile.writelines(pizza)

@@ -9,7 +9,7 @@ class Pizza:
         self.maxc = 0
 
     def isValidSlice(self, slice):
-        if(slice.h == 0 or slice.w == 0)
+        if(slice.h == 0 or slice.w == 0):
             return False
         if(slice.h * slice.w > self.maxc):
             return False
@@ -33,6 +33,26 @@ def pizza_parser(filename):
     return pizza
 
 pizza = pizza_parser('small.in')
+
+def check_valid(slice, min_required):
+    m_count = 0
+    t_count = 0
+    for line in slice:
+        for cell in line:
+            if cell == 'M':
+                m_count += 1
+            elif cell == 'T':
+                t_count += 1
+
+            if m_count >= min_required and t_count >= min_required:
+                return True
+    return False
+
+a = pizza.maxc / 2
+for i in range(pizza.rows - a):
+    for j in range(pizza.cols - a):
+        is_valid = check_valid(pizza.lines[i:i+a][j:j+a], pizza.mini)
+        print "{},{} {}".format(i, j, is_valid)
 
 
 #outputfile = open('small.out', 'w')

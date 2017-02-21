@@ -19,12 +19,6 @@ class Pizza:
 
 
 class Slice:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-        self.h = 0
-        self.w = 0
-
     def __init__(self, X, Y, H, W):
         self.x = X
         self.y = Y
@@ -45,6 +39,9 @@ def slice_printer(slices):
         outputfile.write(" ".join ([str (slice.y), str (slice.x), str (slice.y +slice.h), str (slice.x + slice.w), '\n']))
     outputfile.close()
 
+pizza = pizza_parser('medium.in')
+slices = []
+
 def check_valid(slice, min_required):
     m_count = 0
     t_count = 0
@@ -59,15 +56,18 @@ def check_valid(slice, min_required):
                 return True
     return False
 
-pizza = pizza_parser('small.in')
+def get_valid_slices(rows, cols):
+    for i in range(pizza.rows - rows):
+        for j in range(pizza.cols - cols):
+            if check_valid(pizza.lines[i:i+rows][j:j+cols], pizza.mini):
+                slices.append(Slice(i, j, rows, cols))
 
-a = pizza.maxc / 2
-for i in range(pizza.rows - a):
-    for j in range(pizza.cols - a):
-        is_valid = check_valid(pizza.lines[i:i+a][j:j+a], pizza.mini)
-        print "{},{} {}".format(i, j, is_valid)
+for rows in range(1, pizza.rows):
+    for cols in range(1, pizza.cols):
+        cells = rows * cols
+        if cells <= pizza.maxc:
+            get_valid_slices(rows, cols)
 
-slices = []
 #slices.append(Slice(0, 0, 2, 1))
 #slices.append(Slice(3, 2, 1, 2))
 slice_printer(slices)

@@ -15,6 +15,9 @@ class Slice:
         self.h = H
         self.w = W
 
+    def area(self):
+        return self.h * self.w
+
 def pizza_parser(filename):
     pizza = Pizza()
     with open(filename) as f:
@@ -23,11 +26,15 @@ def pizza_parser(filename):
     return pizza
 
 def slice_printer(slices):
+    print 'selected area ' + str(selected_area(slices))
     outputfile = open('result.out', 'w')
     outputfile.write(str(len(slices)) + '\n')
     for slice in slices:
         outputfile.write(" ".join ([str (slice.y), str (slice.x), str (slice.y +slice.h), str (slice.x + slice.w), '\n']))
     outputfile.close()
+
+def selected_area (slices):
+    return sum ([s.area() for s in slices])
 
 def check_valid(slice, min_required):
     m_count = 0
@@ -57,8 +64,6 @@ def main():
             cells = rows * cols
             if cells <= pizza.maxc:
                 get_valid_slices(rows, cols, slices, pizza)
-
     slice_printer(slices)
-
 
 main()

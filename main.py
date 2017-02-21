@@ -6,6 +6,13 @@ class Pizza:
         self.mini = 0
         self.maxc = 0
 
+class Slice:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        self.h = 0
+        self.w = 0
+
 def pizza_parser(filename):
     pizza = Pizza()
     with open(filename) as f:
@@ -14,6 +21,7 @@ def pizza_parser(filename):
     return pizza
 
 pizza = pizza_parser('small.in')
+
 
 #outputfile = open('small.out', 'w')
 #outputfile.writelines(pizza)

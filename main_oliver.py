@@ -53,19 +53,19 @@ def pizza_parser(filename):
         pizza.lines = np.array([list(l.strip()) for l in f])
     return pizza
 
-#def slice_printer(slices):
-    #outputfile = open('result.out', 'w')
-    #outputfile.write(str(len(slices)) + '\n')
-   # for slice in slices:
-      #  outputfile.write(slice.to_string())
-    #outputfile.close()
-
 def slice_printer(slices):
     outputfile = open('result.out', 'w')
     outputfile.write(str(len(slices)) + '\n')
     for slice in slices:
-        outputfile.write(" ".join ([str (slice.x), str (slice.y), ":" ,str (slice.x +slice.w - 1), str (slice.y + slice.h - 1), '\n']))
+        outputfile.write(slice.to_string())
     outputfile.close()
+
+#def slice_printer(slices):
+    #outputfile = open('result.out', 'w')
+    #outputfile.write(str(len(slices)) + '\n')
+    #for slice in slices:
+    #    outputfile.write(" ".join ([str (slice.x), str (slice.y), ":" ,str (slice.x +slice.w - 1), str (slice.y + slice.h - 1), '\n']))
+    #outputfile.close()
 
 def check_valid(slice, min_required):
     m_count = 0
@@ -117,7 +117,7 @@ def conflicts_with_troubled(slice, troublemakers):
 
 
 def rehabilitate_troublemakers(troubleSlices, y):
-    new_troubleSlices = []
+    new_troubleSlices = [] #egh, better to remove from original troubleSlices
     for slice in troubleSlices:
         if (slice.y + slice.h) > y:
             new_troubleSlices.append(slice)
@@ -161,20 +161,25 @@ def main():
         y += 1
 
 
+    slice_printer(slices)
+
+
     #should double check if none of the found slices actually conflict...
     print("found:" + str(slices.__len__()))
-    #i = 1
-    #print("doing validity check")
-    #for slice in slices:
-        #print("checking:" + str(i))
-        #for other in slices:
-            #if slice != other and slice.conflicts_with(other):
-                #print("u fucked up")
-                #break
-        #i += 1
-
     print("final area: " + str(area))
-    slice_printer(slices)
+
+    i = 1
+    print("doing validity check, u can quit if u want")
+    for slice in slices:
+        print("checking:" + str(i))
+        for other in slices:
+            if slice != other and slice.conflicts_with(other):
+                print("u fucked up")
+                break
+        i += 1
+
+
+
 
 
 

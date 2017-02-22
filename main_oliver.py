@@ -40,6 +40,9 @@ class Slice:
 
         return False
 
+    def to_string(self):
+        return " ".join ([str (self.y), str (self.x), str (self.y2()), str (self.x2()), '\n'])
+
 def in_range (num, min, max):
     return num >= min and num <= max
 
@@ -49,6 +52,13 @@ def pizza_parser(filename):
         pizza.rows, pizza.cols, pizza.mini, pizza.maxc = map(int, f.readline().split())
         pizza.lines = np.array([list(l.strip()) for l in f])
     return pizza
+
+#def slice_printer(slices):
+    #outputfile = open('result.out', 'w')
+    #outputfile.write(str(len(slices)) + '\n')
+   # for slice in slices:
+      #  outputfile.write(slice.to_string())
+    #outputfile.close()
 
 def slice_printer(slices):
     outputfile = open('result.out', 'w')
@@ -80,8 +90,8 @@ def get_valid_slices(rows, cols, slices, pizza):
 
 def getValidNonConflictingSliceFromLocation(x,y, pizza, troubleSlices):
     for y_end in range(y+1,y+getMaxPossibleHeight(pizza.rows,pizza.maxc,y)):
-        for x_end in range(x+getMaxPossibleWidth(pizza.cols, pizza.maxc, x)-1, 0, -1):
-            if check_valid(pizza.lines[y:y_end + 1, x:x_end + 1], pizza.mini)\
+        for x_end in range(x+getMaxPossibleWidth(pizza.cols, pizza.maxc, x)-1, 0, -1): #dont need to do checking on next line if we set range properly here
+            if ((y_end - y + 1)*(x_end - x + 1)) <= pizza.maxc and check_valid(pizza.lines[y:y_end + 1, x:x_end + 1], pizza.mini)\
                     and not conflicts_with_troubled(Slice(x, y, y_end - y+ 1,x_end - x + 1), troubleSlices):
                 return Slice(x, y, y_end - y+ 1,x_end - x + 1)
     return None

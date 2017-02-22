@@ -87,11 +87,13 @@ def get_valid_slices(rows, cols, slices, pizza):
 
 
 def remove_conflicts(all_slices, selected_slice):
-    new_slices = []
+    #new_slices = []
     for s in all_slices:
-        if not selected_slice.conflicts_with(s):
-            new_slices.append(s)
-    return new_slices
+        #if not selected_slice.conflicts_with(s):
+        #    new_slices.append(s)
+        if selected_slice.conflicts_with(s):
+            all_slices.pop(s)
+    return all_slices
 
 
 def select_slices_random(all_slices):
@@ -110,11 +112,51 @@ def select_slices_random(all_slices):
 
     return selected_slices
 
+def select_slices_random_dict(slices):
+    print "initializing slice map"
+    slice_map = dict(zip(range(len(slices)), slices))
+
+    print "initializing conflict map"
+    conflict_map = dict.fromkeys(range(len(slices)))
+    for key in conflict_map:
+        conflict_map[key] = []
+
+    #for key in conflict_map:
+    #    print "conflict:", str (key), ":", str (conflict_map[key])
+
+    print "building conflict map"
+    for key1 in slice_map:
+        slice1 = slice_map[key1]
+        print "Adding conflicts for", str(key1)
+        for key2 in range(key1, len(slice_map)):
+            slice2 = slice_map[key2]
+            if slice1.conflicts_with(slice2):
+                conflict_map[key1].append(key2)
+                conflict_map[key2].append(key1)
+
+    print "Picking slices"
+    selected_slices = []
+    while slice_map:
+        print "remaining slices:" + str(len(slice_map))
+        selected_slice = random.choice(slice_map.keys())
+        selected_slices.append(slice_map[selected_slice])
+
+        slice_map.pop(selected_slice)
+        for c in conflict_map[selected_slice]:
+            if c in slice_map:
+                slice_map.pop(c)
+
+    print "Random pick selected " + str(len(selected_slices)) + " slices with area " + \
+          str(selected_area(selected_slices))
+
+    return selected_slices
+
 
 def main():
     # dont try with bigger ones
     pizza = pizza_parser('medium.in')
     slices = []
+
     print pizza.rows, pizza.cols
     for rows in range(1, pizza.rows):
         for cols in range(1, pizza.cols):
@@ -123,7 +165,7 @@ def main():
                 get_valid_slices(rows, cols, slices, pizza)
                 print cells, len(slices)
 
-    random_slices = select_slices_random (slices)
+    random_slices = select_slices_random_dict(slices)
 
     slice_printer(random_slices)
 

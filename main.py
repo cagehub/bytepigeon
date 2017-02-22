@@ -84,39 +84,15 @@ def select_slices_random(all_slices):
 def main():
     pizza = pizza_parser('small.in')
     slices = []
-    troubleSlices = []
-
-    x = 0
-    y = 0
-
-    while y < pizza.rows:
-        x=0
-        while x < pizza.cols:
-            found = False
-            for size in range(getMaxPossibleWidth(pizza.cols, pizza.maxc, x), 2*pizza.mini - 1, -1):
-                if check_valid(pizza.lines[y:y+1,x:x+size], pizza.mini):
-                    valid_slice = Slice(x, y, 1, size)
-                    if not conflicts_with_troubled(valid_slice, troubleSlices):
-                        slices.append(valid_slice)
-                        x += size -1
-                        found = True
-                        break
-
-            if not found:
-                trouble_slice = getValidSliceFromLocation(x,y, pizza)
-                if (trouble_slice != None):
-                    troubleSlices.append(trouble_slice)
-                    slices.append(trouble_slice)
-                    x += trouble_slice.w
-            x += 1
-        y += 1
-
-
-
-
+    for rows in range(1, pizza.rows):
+        for cols in range(1, pizza.cols):
+            cells = rows * cols
+            if cells <= pizza.maxc:
+                get_valid_slices(rows, cols, slices, pizza)
 
     # random_slices = select_slices_random (slices)
 
     slice_printer(slices)
+
 
 main()

@@ -15,6 +15,34 @@ class Slice:
         self.h = H
         self.w = W
 
+    def x2(self):
+        return self.x + self.w - 1
+
+    def y2(self):
+        return self.y + self.h - 1
+
+    def area(self):
+        return self.h * self.w
+
+    def conflicts_with(self, other):
+        other_x_overlaps_self = in_range(other.x, self.x, self.x2()) or in_range(other.x2(), self.x, self.x2())
+        other_y_overlaps_self = in_range(other.y, self.y, self.y2()) or in_range(other.y2(), self.y, self.y2())
+
+        self_x_overlaps_other = in_range(self.x, other.x, other.x2()) or in_range(self.x2(), other.x, other.x2())
+        self_y_overlaps_other = in_range(self.y, other.y, other.y2()) or in_range(self.y2(), other.y, other.y2())
+
+        # TODO: double check this
+        if other_x_overlaps_self and other_y_overlaps_self:
+            return True
+
+        if self_x_overlaps_other and self_y_overlaps_other:
+            return True
+
+        return False
+
+def in_range (num, min, max):
+    return num >= min and num <= max
+
 def pizza_parser(filename):
     pizza = Pizza()
     with open(filename) as f:
@@ -50,10 +78,11 @@ def get_valid_slices(rows, cols, slices, pizza):
                 slices.append(Slice(i, j, rows, cols))
 
 
-def getValidSliceFromLocation(x,y, pizza):
+def getValidNonConflictingSliceFromLocation(x,y, pizza, troubleSlices):
     for y_end in range(y+1,y+getMaxPossibleHeight(pizza.rows,pizza.maxc,y)):
         for x_end in range(x+getMaxPossibleWidth(pizza.cols, pizza.maxc, x)-1, 0, -1):
-            if check_valid(pizza.lines[y:y_end + 1, x:x_end + 1], pizza.mini):
+            if check_valid(pizza.lines[y:y_end + 1, x:x_end + 1], pizza.mini)\
+                    and not conflicts_with_troubled(Slice(x, y, y_end - y+ 1,x_end - x + 1), troubleSlices):
                 return Slice(x, y, y_end - y+ 1,x_end - x + 1)
     return None
 
@@ -72,20 +101,33 @@ def getMaxPossibleHeight(rows, max_size, y):
 
 def conflicts_with_troubled(slice, troublemakers):
     for trouble in troublemakers:
-        if slice.
+        if slice.conflicts_with(trouble):
+            return True
+    return False
 
+
+def rehabilitate_troublemakers(troubleSlices, y):
+    new_troubleSlices = []
+    for slice in troubleSlices:
+        if (slice.y + slice.h) > y:
+            new_troubleSlices.append(slice)
+
+    return new_troubleSlices
 
 
 def main():
-    pizza = pizza_parser('small.in')
+    pizza = pizza_parser('medium.in')
     slices = []
     troubleSlices = []
+    area = 0
 
     x = 0
     y = 0
 
     while y < pizza.rows:
+        troubleSlices = rehabilitate_troublemakers(troubleSlices,y)
         x=0
+        print(y)
         while x < pizza.cols:
             found = False
             for size in range(getMaxPossibleWidth(pizza.cols, pizza.maxc, x), 2*pizza.mini - 1, -1):
@@ -93,23 +135,24 @@ def main():
                     valid_slice = Slice(x, y, 1, size)
                     if not conflicts_with_troubled(valid_slice, troubleSlices):
                         slices.append(valid_slice)
+                        area += valid_slice.area()
                         x += size -1
                         found = True
                         break
 
             if not found:
-                trouble_slice = getValidSliceFromLocation(x,y, pizza)
+                trouble_slice = getValidNonConflictingSliceFromLocation(x,y, pizza, troubleSlices)
                 if (trouble_slice != None):
                     troubleSlices.append(trouble_slice)
                     slices.append(trouble_slice)
-                    x += trouble_slice.w
+                    area += trouble_slice.area()
+                    x += trouble_slice.w -1
             x += 1
         y += 1
 
 
-
-
-
+    #should double check if none of the found slices actually conflict...
+    print("final area: " + str(area))
     slice_printer(slices)
 
 

@@ -1,5 +1,7 @@
-import numpy as np
 import random
+
+import numpy as np
+
 
 class Pizza:
     def __init__(self):
@@ -9,13 +11,23 @@ class Pizza:
         self.mini = 0
         self.maxc = 0
 
+
 class Slice:
-    def __init__(self, X, Y, H, W):
-        self.x = X
-        self.y = Y
-        self.h = H
-        self.w = W
-        #print str (self.area()), self.to_string()
+    def __init__(self, r1, c1, r2, c2):
+        self.r1 = r1
+        self.r2 = r2
+        self.c1 = c1
+        self.c2 = c2
+        # print str (self.area()), self.to_string()
+
+    def height(self):
+        return self.r2 - self.r1 + 1
+
+    def width(self):
+        return self.c2 - self.c1 + 1
+
+    def area(self):
+        return self.height() * self.width()
 
     def x2(self):
         return self.x + self.h - 1
@@ -23,30 +35,12 @@ class Slice:
     def y2(self):
         return self.y + self.w - 1
 
-    def area(self):
-        return self.h * self.w
-
     def conflicts_with(self, other):
-        other_x_overlaps_self = in_range(other.x, self.x, self.x2()) or in_range(other.x2(), self.x, self.x2())
-        other_y_overlaps_self = in_range(other.y, self.y, self.y2()) or in_range(other.y2(), self.y, self.y2())
-
-        self_x_overlaps_other = in_range(self.x, other.x, other.x2()) or in_range(self.x2(), other.x, other.x2())
-        self_y_overlaps_other = in_range(self.y, other.y, other.y2()) or in_range(self.y2(), other.y, other.y2())
-
-        # TODO: double check this
-        if other_x_overlaps_self and other_y_overlaps_self:
-            return True
-
-        if self_x_overlaps_other and self_y_overlaps_other:
-            return True
-
-        return False
+        return not (self.r2 < other.r1 or self.r1 > other.r2 or self.c2 < other.c1 or self.c1 > other.c2)
 
     def to_string(self):
-        return " ".join ([str (self.x), str (self.y), str (self.x2()), str (self.y2()), '\n'])
+        return " ".join([str(self.r1), str(self.c1), str(self.r2), str(self.c2), '\n'])
 
-def in_range (num, min, max):
-    return num >= min and num <= max
 
 def pizza_parser(filename):
     pizza = Pizza()
@@ -54,6 +48,7 @@ def pizza_parser(filename):
         pizza.rows, pizza.cols, pizza.mini, pizza.maxc = map(int, f.readline().split())
         pizza.lines = np.array([list(l.strip()) for l in f])
     return pizza
+
 
 def slice_printer(slices):
     print 'selected area ' + str(selected_area(slices))
@@ -63,8 +58,10 @@ def slice_printer(slices):
         outputfile.write(slice.to_string())
     outputfile.close()
 
-def selected_area (slices):
-    return sum ([s.area() for s in slices])
+
+def selected_area(slices):
+    return sum([s.area() for s in slices])
+
 
 def check_valid(slice, min_required):
     m_count = 0
@@ -80,39 +77,43 @@ def check_valid(slice, min_required):
                 return True
     return False
 
+
 def get_valid_slices(rows, cols, slices, pizza):
     for i in range(pizza.rows - rows + 1):
         for j in range(pizza.cols - cols + 1):
-            if check_valid(np.array(pizza.lines)[i:i+rows,j:j+cols], pizza.mini):
-                #print np.array(pizza.lines)[i:i+rows, j:j+cols]
-                slices.append(Slice(i, j, rows, cols))
+            if check_valid(pizza.lines[i:i + rows, j:j + cols], pizza.mini):
+                #print pizza.lines[i:i+rows, j:j+cols]
+                slices.append(Slice(i, j, i + rows - 1, j + cols - 1))
+
 
 def remove_conflicts(all_slices, selected_slice):
     new_slices = []
     for s in all_slices:
-        if not selected_slice.conflicts_with (s):
+        if not selected_slice.conflicts_with(s):
             new_slices.append(s)
     return new_slices
+
 
 def select_slices_random(all_slices):
     selected_slices = []
 
     while all_slices:
         print "remaining slices:" + str(len(all_slices))
-        selected_pos = random.choice(range(0, len (all_slices)))
+        selected_pos = random.choice(range(0, len(all_slices)))
         selected_slice = all_slices[selected_pos]
         selected_slices.append(selected_slice)
         all_slices.pop(selected_pos)
-        all_slices = remove_conflicts (all_slices, selected_slice)
+        all_slices = remove_conflicts(all_slices, selected_slice)
 
     print "Random pick selected " + str(len(selected_slices)) + " slices with area " + \
           str(selected_area(selected_slices))
 
     return selected_slices
 
+
 def main():
     # dont try with bigger ones
-    pizza = pizza_parser('small.in')
+    pizza = pizza_parser('medium.in')
     slices = []
     print pizza.rows, pizza.cols
     for rows in range(1, pizza.rows):
@@ -125,6 +126,5 @@ def main():
     random_slices = select_slices_random (slices)
 
     slice_printer(random_slices)
-    #slice_printer(slices)
 
 main()

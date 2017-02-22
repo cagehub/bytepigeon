@@ -25,19 +25,8 @@ class Slice:
         return self.h * self.w
 
     def conflicts_with(self, other):
-        other_x_overlaps_self = in_range(other.x, self.x, self.x2()) or in_range(other.x2(), self.x, self.x2())
-        other_y_overlaps_self = in_range(other.y, self.y, self.y2()) or in_range(other.y2(), self.y, self.y2())
-
-        self_x_overlaps_other = in_range(self.x, other.x, other.x2()) or in_range(self.x2(), other.x, other.x2())
-        self_y_overlaps_other = in_range(self.y, other.y, other.y2()) or in_range(self.y2(), other.y, other.y2())
-
-        # TODO: double check this
-        if other_x_overlaps_self and other_y_overlaps_self:
+        if(self.x <= other.x2() and self.x2() >= other.x and self.y <= other.y2() and self.y2() >= other.y):
             return True
-
-        if self_x_overlaps_other and self_y_overlaps_other:
-            return True
-
         return False
 
     def to_string(self):

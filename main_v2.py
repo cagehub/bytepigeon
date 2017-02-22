@@ -16,6 +16,16 @@ def pizza_parser(filename):
         pizza.lines = np.array([list(l.strip()) for l in f])
     return pizza
 
+def slice_printer(slices, filename):
+    with open(filename, 'w') as f:
+        f.write(str(len(slices)) + '\n')
+        for s in slices:
+            r1 = s[0]
+            c1 = s[1]
+            r2 = r1 + s[2] - 1
+            c2 = c1 + s[3] - 1
+            f.write("{} {} {} {}\n".format(r1, c1, r2, c2))
+
 def check_valid(slice, min_required):
     m_count = 0
     t_count = 0
@@ -40,7 +50,7 @@ def get_valid_slices(rows, cols, pizza):
                 slices.append((i, j, rows, cols))
                 output[i:i+rows, j:j+cols] = 1
 
-pizza = pizza_parser('big.in')
+pizza = pizza_parser('example.in')
 lines = pizza.lines
 slices = []
 output = np.zeros((pizza.rows, pizza.cols), dtype=np.int8)
@@ -56,3 +66,5 @@ for rows in reversed(range(1, min(pizza.rows, pizza.maxc + 1))):
 
 print "{} out of {}".format(np.sum(output), pizza.rows * pizza.cols)
 print "total time {}".format(time.time() - t0)
+
+slice_printer(slices, 'example.out')

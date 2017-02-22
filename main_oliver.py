@@ -152,6 +152,17 @@ def main():
 
 
     #should double check if none of the found slices actually conflict...
+    print("found:" + str(slices.__len__()))
+    #i = 1
+    #print("doing validity check")
+    #for slice in slices:
+        #print("checking:" + str(i))
+        #for other in slices:
+            #if slice != other and slice.conflicts_with(other):
+                #print("u fucked up")
+                #break
+        #i += 1
+
     print("final area: " + str(area))
     slice_printer(slices)
 

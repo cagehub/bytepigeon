@@ -1,3 +1,5 @@
+import random
+
 class Latency:
     def __init__(self, ep_id, latency):
         self.endpoint_id = ep_id
@@ -7,7 +9,7 @@ class Latency:
 class Endpoint:
     def __init__(self, dc_latency, latencies):
         self.dc_latency = dc_latency
-        self.latencies = latencies  # list of Latency
+        self.latencies = latencies  # map cache id to latency
 
 
 class Request:
@@ -28,6 +30,10 @@ class Data:
     requests = []
     cache_size = 0
     cache_count = 0
+    maxLossCosts = []
+    Xmul = 1
+    Ymul = 3
+    Zmul = 5
 
 
 def parser(filename):
@@ -50,46 +56,38 @@ def parser(filename):
     return d
 
 
-data = parser('me_at_the_zoo.in')
+data = parser('streaming_videos/me_at_the_zoo.in')
 
 class LossCost:
     def __init__(self, cost, cacheId):
         self.cost = cost
-        self.cacheId = cacheId
 
+def getLossFromNotInsertingVideoToCache(data,cacheId, endpoint_id, request_count):
+    loss = 0
+    ep = data.endpoints[endpoint_id]
+    if cacheId in ep.latencies:
+        latency = ep.latencies[cacheId]
+        loss += request_count * (ep.dc_latency - latency)
+    return loss
 
-videos = [] # list of sizes
-endpoints = []
-requests = []
+def getCacheLossCost_CacheArray(data, video_id):
+    lossCostArray = [0]*data.cache_count
+    for request in data.requests:
+        if(request.video_id == video_id):
+            cacheId = 0
+            while cacheId < data.cache_count:
+                lossCostArray[cacheId] += getLossFromNotInsertingVideoToCache(data,cacheId, request.endpoint_id, request.count)
+    return getBiggestCacheLoss(lossCostArray)
 
-cache_size = 0
-cache_count = 0
+# getSorter(item):
+ #   return item.cost
 
-Xmul = 1
-Ymul = 3
-Zmul = 5
+def getBiggestCacheLoss(lossCostArray):
+    return sorted(lossCostArray, reverse=True)[0]
 
-maxLossCosts = []
-lossCostArray = []
+def main(data):
+    for video_id in range(0,data.videos.__len__()):
+        data.maxLossCosts.append(getCacheLossCost_CacheArray(data, video_id))
+    print(''.join(str(e) for e in data.maxLossCosts))
 
-def getCacheLossCost_CacheArray(video):
-    for request in requests:
-        cacheId = 0
-        while cacheId < cache_count:
-            lossCostArray[]
-
-    lossCostArray[]
-    return (LossCost(10,2), LossCost(5,3), LossCost(232,30))
-
-def getSorter(item):
-    return item.cost
-
-def getMaxLossCost(lossCost_CacheArray):
-    return sorted(lossCost_CacheArray, key=getSorter, reverse=True)[0]
-
-def main():
-    for video in videos:
-
-        maxLossCosts.append(getMaxLossCost(getCacheLossCost_CacheArray(video)))
-    print(maxLossCosts[0].cost)
-main()
+main(data)

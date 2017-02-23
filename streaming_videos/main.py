@@ -9,10 +9,16 @@ class Request:
         self.video_id = video_id
         self.endpoint_id = endpoint_id
 
+class Cache:
+    def __init__(self, size, videos):
+        self.videos = videos
+
+
 videos = [] # list of sizes
 endpoints = []
 requests = []
 
 cache_size = 0
 cache_count = 0
+caches = []
 

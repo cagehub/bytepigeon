@@ -1,16 +1,8 @@
-import random
-
-class Latency:
-    def __init__(self, ep_id, latency):
-        self.endpoint_id = ep_id
-        self.latency = latency
-
-
+from operator import attrgetter
 class Endpoint:
     def __init__(self, dc_latency, latencies):
         self.dc_latency = dc_latency
         self.latencies = latencies  # map cache id to latency
-
 
 class Request:
     def __init__(self, video_id, endpoint_id, count):
@@ -18,16 +10,16 @@ class Request:
         self.endpoint_id = endpoint_id
         self.count = count
 
-
 class Cache:
-    def __init__(self, size, videos):
+    def __init__(self, id, videos):
+        self.id = id
         self.videos = videos
 
-
 class Data:
-    videos = []  # list of sizes
+    videos = [] # list of sizes
     endpoints = []
     requests = []
+    caches = []
     cache_size = 0
     cache_count = 0
     maxLossCosts = []
@@ -42,12 +34,15 @@ def parser(filename):
         _, endp, reqs, d.cache_count, d.cache_size = map(int, f.readline().split())
         d.videos = map(int, f.readline().split())
 
+        for c_id in range(d.cache_count):
+            d.caches.append(Cache(c_id, []))
+
         for _ in range(endp):
             dcl, cnt = map(int, f.readline().split())
-            latencies = []
+            latencies = {}
             for _ in range(cnt):
-                ep_id, latency = map(int, f.readline().split())
-                latencies.append(Latency(ep_id, latency))
+                cache_id, latency = map(int, f.readline().split())
+                latencies[cache_id] = latency
             d.endpoints.append(Endpoint(dcl, latencies))
 
         for _ in range(reqs):
@@ -56,11 +51,23 @@ def parser(filename):
     return d
 
 
-data = parser('streaming_videos/me_at_the_zoo.in')
+def print_results(caches):
+    out_file = open("result.out", "w")
+    out_file.write(str(len(caches)))
+    out_file.write("\n")
+
+    for c in caches:
+        out_file.write(str(c.id))
+        for v in c.videos:
+            out_file.write(" " + str(v))
+        out_file.write("\n")
+    out_file.close()
 
 class LossCost:
     def __init__(self, cost, cacheId):
         self.cost = cost
+        self.cacheId = cacheId
+        self.videoId = -1
 
 def getLossFromNotInsertingVideoToCache(data,cacheId, endpoint_id, request_count):
     loss = 0
@@ -71,23 +78,32 @@ def getLossFromNotInsertingVideoToCache(data,cacheId, endpoint_id, request_count
     return loss
 
 def getCacheLossCost_CacheArray(data, video_id):
-    lossCostArray = [0]*data.cache_count
+    lossCostArray = [LossCost(0, -1) for _ in range(data.cache_count)]
+    print("processing requests for video: " + str(video_id))
     for request in data.requests:
         if(request.video_id == video_id):
-            cacheId = 0
-            while cacheId < data.cache_count:
-                lossCostArray[cacheId] += getLossFromNotInsertingVideoToCache(data,cacheId, request.endpoint_id, request.count)
+            loopcacheId = 0
+            while loopcacheId < data.cache_count:
+                if(lossCostArray[loopcacheId].cacheId != loopcacheId):
+                    lossCostArray[loopcacheId].cacheId = loopcacheId
+                lossCostArray[loopcacheId].cost += getLossFromNotInsertingVideoToCache(data,loopcacheId, request.endpoint_id, request.count)
+                loopcacheId += 1
+    #print(' , '.join(str(e.cost) for e in lossCostArray))
     return getBiggestCacheLoss(lossCostArray)
 
-# getSorter(item):
- #   return item.cost
+def getSorter(item):
+    return item.cost
 
 def getBiggestCacheLoss(lossCostArray):
-    return sorted(lossCostArray, reverse=True)[0]
+    return max(lossCostArray, key=attrgetter('cost'))
 
-def main(data):
+def main():
+    data = parser('streaming_videos/me_at_the_zoo.in')
     for video_id in range(0,data.videos.__len__()):
-        data.maxLossCosts.append(getCacheLossCost_CacheArray(data, video_id))
-    print(''.join(str(e) for e in data.maxLossCosts))
+        temp = getCacheLossCost_CacheArray(data, video_id)
+        temp.videoId = video_id
+        data.maxLossCosts.append(temp)
+    data.maxLossCosts.sort(key=lambda x: x.cost, reverse=True)
+    print(' x '.join(str(e.cost) for e in data.maxLossCosts))
 
-main(data)
+main()

@@ -15,13 +15,15 @@ class Request:
         self.count = count
 
 class Cache:
-    def __init__(self, size, videos):
+    def __init__(self, id, videos):
+        self.id = id
         self.videos = videos
 
 class Data:
     videos = [] # list of sizes
     endpoints = []
     requests = []
+    caches = []
     cache_size = 0
     cache_count = 0
 
@@ -44,4 +46,19 @@ def parser(filename):
             d.requests.append(Request(video_id, endpoint_id, count))
     return d
 
+def print_results (caches):
+    out_file = open ("result.out", "w")
+    out_file.write(str(len(caches)))
+    out_file.write("\n")
+
+    for c in caches:
+        out_file.write(str(c.id))
+        for v in c.videos:
+            out_file.write(" " + str (v))
+        out_file.write("\n")
+    out_file.close()
+
 data = parser('me_at_the_zoo.in')
+
+print_results(data.caches)
+

@@ -1,12 +1,7 @@
-class Latency:
-    def __init__(self, ep_id, latency):
-        self.endpoint_id = ep_id
-        self.latency = latency
-
 class Endpoint:
     def __init__(self, dc_latency, latencies):
         self.dc_latency = dc_latency
-        self.latencies = latencies # list of Latency
+        self.latencies = {} # map cache id to latency
 
 class Request:
     def __init__(self, video_id, endpoint_id, count):
@@ -38,10 +33,10 @@ def parser(filename):
         
         for _ in range(endp):
             dcl, cnt = map(int, f.readline().split())
-            latencies = []
+            latencies = {}
             for _ in range(cnt):
-                ep_id, latency = map(int, f.readline().split())
-                latencies.append(Latency(ep_id, latency))
+                cache_id, latency = map(int, f.readline().split())
+                latencies[cache_id] = latency
             d.endpoints.append(Endpoint(dcl, latencies))
 
         for _ in range(reqs):
@@ -61,7 +56,20 @@ def print_results (caches):
         out_file.write("\n")
     out_file.close()
 
+def get_latency_gain(data, video_id, cache_id):
+    gain = 0
+    vid_requests = [r for r in data.requests if r.video_id == video_id]
+    for r in vid_requests:
+        ep = data.endpoints[r.endpoint_id]
+        if cache_id in ep.latencies:
+            latency = ep.latencies[cache_id]
+            gain += r.count * (ep.dc_latency - latency)
+    return gain
+
 data = parser('me_at_the_zoo.in')
+
+#print get_latency_gain(data, 0, 0)
 
 print_results(data.caches)
 
+        

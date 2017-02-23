@@ -32,6 +32,9 @@ def parser(filename):
     with open(filename) as f:
         _, endp, reqs, d.cache_count, d.cache_size = map(int, f.readline().split())
         d.videos = map(int, f.readline().split())
+
+        for c_id in range(d.cache_count):
+            d.caches.append(Cache(c_id, []))
         
         for _ in range(endp):
             dcl, cnt = map(int, f.readline().split())

@@ -93,7 +93,7 @@ def get_latency_gain(data, video_id, cache_id, count):
 # kittens
 # trending_today
 # videos_worth_spreading
-data, caches = parser('me_at_the_zoo.in')
+data, caches = parser('trending_today.in')
 
 gain = []
 for v_id in range(len(data.videos)):
@@ -111,7 +111,7 @@ gain.sort(key=lambda x: x[0][1], reverse=True)
 
 caches = [Cache(i, data.cache_size) for i in range(data.cache_size)]
 
-CACHES_MAX = data.cache_count
+CACHES_MAX = 1
 
 for vid_id in range(len(gain)):
     caches_used = 0
@@ -124,6 +124,6 @@ for vid_id in range(len(gain)):
             break
 
 output_caches = [c for c in caches if not c.is_empty()]
-print_results(output_caches, "me_at_the_zoo.out")
+print_results(output_caches, "trending_today.out")
 
         
